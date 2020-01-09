@@ -11,4 +11,4 @@ Requirements: theseus-growth is written in Python3
 
 Installation: pip install theseus_growthi
 
-Importing: from theseus_growth import theseus
+Importing: import theseus_growth

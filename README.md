@@ -9,4 +9,6 @@ Theseus provides a set of common functions for use in doing analysis related to 
 
 Requirements: theseus-growth is written in Python3
 
-Installation: pip install theseus-growth
+Installation: pip install theseus_growthi
+
+Importing: from theseus_growth import theseus

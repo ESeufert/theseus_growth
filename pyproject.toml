@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "theseus_growth"
-version = "0.2.0"
+version = "0.2.1"
 description = "Theseus is an analytical tool suite for growth marketers"
 authors = ["Eric Seufert <eric@mobiledevmemo.com>"]
 license = "MIT"

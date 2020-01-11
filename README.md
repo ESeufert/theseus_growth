@@ -48,6 +48,8 @@ facebook = th.create_profile( days = x_data, retention_values = y_data, profile_
 
 In this example, Day 1 retention is set to 80, Day 3 retention is set to 70, Day 7 retention is set to 55, etc. Then, using these lists are supplied to the `create_profile` function to generate a retention profile (in this case, for Facebook, as per the variable name).
 
+The curve fit to the retention data is decided by iterating over a number of different function forms to find the one that fits best with the smallest error. The functions tested are: #form options: `[ 'log', 'exp', 'linear', 'quad', 'weibull', 'power' ]`. A specific function can be forced onto the data by using the `form` parameter with the `create_profile` function; when the `form` parameter is not set, `create_profile` defaults to finding the best fit function.
+
 If you `print` the `facebook` variable, the output will reveal a number of pieces of information about the retention profile:
 
 ```python
@@ -293,6 +295,23 @@ The output of this should look something like this (the red dots are the actual 
 
 ![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/google_retention_profile.png "Google retention profile")
 
+To build a forward DAU projection for Google, the following can be run. Note that the start_date is set to 10:
+
+```python
+cohorts = [ 2000, 4000, 1200, 2200, 1700, 1300, 4200, 9200 ]
+google_DAU = th.project_cohorted_DAU( profile = google, periods = 30, cohorts = cohorts, 
+    DAU_target = 20000, DAU_target_timeline = 20, start_date = 10 )
+
+from datetime import date, timedelta
+th.plot_forward_DAU_stacked( forward_DAU = google_DAU, 
+    forward_DAU_labels = [ 'Cohort ' + str( x ) for x in list( google_DAU.index ) ], 
+    forward_DAU_dates = [ date(2020, 1, 1) + timedelta(days=int( x ) - 1 ) for x in list( google_DAU.columns ) ]
+)
+```
+
+![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/google_forward_DAU.png "Google retention profile")
+
+Note the lumpiness of the first few days of DAU -- this is a result of 1) the volatile number of DAU in the initial cohorts and 2) the relatively low Google retention ( 40% on Day 1). Also note the dates on the X axis: the chart starts on January 10th, 2020 since the `start_date` variable is set to 10.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

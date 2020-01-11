@@ -88,7 +88,7 @@ Which should output a graph that looks like this:
 
 ![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/fb_retention.png "Facebook retention profile graph")
 
-Now a cohort projection can be generated. First, we'll create a list of cohorts, meaning a list containing the numbers of new users that joined the product on a daily basis, with each number representing a sequential day.
+Now a DAU projection based on cohorts can be generated -- in the Theseus library, this is called a **`forward DAU projection`**. First, we'll create a list of cohorts, meaning a list containing the numbers of new users that joined the product on a daily basis, with each number representing a sequential day.
 
 Then, the `project_cohorted_DAU` function can be used to create a Pandas DataFrame containing the number of DAU present in the product, given the new users that joined via the cohorts, on the basis of the `facebook` retention profile. In this example, the function will take 4 inputs (although it can take many more; see the Documentation for more information):
 
@@ -204,7 +204,7 @@ cohort_date
 
 This table reveals that the additional DNU needed to get to 10,000 overall DAU within the 10-period timeframe is: 1613, 1757, 1853, 1934, 2005. _Note that this approach seeks to minimize the number of total DNU added on any given day within the timeline_.
 
-Since the `facebook_DAU` variable is a pandas DataFrame, manipulating it to query data is fairly straightforward. For instance, to get only the DNU values, the following can be done:
+Since the `facebook_DAU` variable is a pandas DataFrame, manipulating it to query data is fairly straightforward. For instance, to get only the DNU values from `facebook_DAU`, the following can be done:
 
 ```python
 #get DNU from a DAU projection
@@ -219,6 +219,41 @@ The output of which is:
 All DNU: [1000, 1000, 1000, 1000, 1000, 1613, 1757, 1853, 1934, 2005]
 Additional DNU: [1613, 1757, 1853, 1934, 2005]
 ```
+
+And to reduce `facebook_DAU` to only the total DAU values over the projection timeline, the `DAU_total` function can be used again:
+
+```python
+        1     2     3     4     5     6     7     8     9     10  ...    41  \
+DAU                                                               ...         
+0    1000  1807  2541  3225  3870  5096  6322  7548  8774  10000  ...  4384   
+
+       42    43    44    45    46    47    48    49    50  
+DAU                                                        
+0    4318  4250  4188  4126  4067  4009  3953  3897  3842  
+
+[1 rows x 50 columns]
+```
+
+Note that this shows DAU reaching 10,000 by Day 10.
+
+The Facebook `forward DAU projection` can be visualized with the `plot_forward_DAU_stacked`, which takes three required parameters (more optional parameters are available -- see the documentation):
++ `forward_DAU`: the forward DAU projection being visualized (in this case, the `facebook_DAU` variable);
++ `forward_DAU_labels`: a list of the cohort names as labels for the Y axis. The length of this list needs to match the number of cohorts in the forward DAU projection;
++ `forward_DAU_dates`: a list of dates as labels for the X axis. The length of this list needs to match the number of periods in the forward DAU projection;
+
+To visualize the Facebook forward DAU projection that reaches the DAU target of 10,000:
+
+```python
+th.plot_forward_DAU_stacked( forward_DAU = facebook_DAU, 
+    forward_DAU_labels = list( facebook_DAU.index ), 
+    forward_DAU_dates = list( facebook_DAU.columns ), 
+)
+```
+
+This should produce a graph that looks like this:
+
+![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/facebook_forward_DAU_projection.png "Facebook forward DAU projection")
+
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

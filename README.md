@@ -1,10 +1,10 @@
 # Theseus
 
-Theseus is an open source library providing easy-to-use analysis tools for growth marketers. 
+## Theseus is an open source library for providing straightforward tools for cohort analysis and general marketing performance analysis. Theseus was created by Eric Benjamin Seufert of [Heracles](https://www.hrcls.co).
+
+Theseus provides a set of common functions for use in doing analysis related to product growth: building retention profiles, projecting DAU levels, combining cohorts, segmenting cohorts by age, etc. Theseus can be used for marketing budgeting planning, scenario analysis, marketing campaign analysis, revenue projections, and in a media mix model.
 
 Theseus is designed to be used for standalone analysis projects as well as in programmatic business intelligence environments. 
-
-Theseus provides a set of common functions for use in doing analysis related to product growth.
 
 ## Installation
 

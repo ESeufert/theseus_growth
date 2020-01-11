@@ -71,14 +71,14 @@ print( facebook )
 
 You won't ever actually interact directly with a retention profile variable, but you can see that it contains:
 + The original X and Y (the `days` and `retention` lists) data provided;
-+ A projection (in the `retention_projection` element);
-+ Two `_collapsed` elements that contain the average values for each of the `days` and `retention` lists (in this example, only one value was provided for each day, so the `y_collapsed` list is the same as the `y` list, which was provided);
-+ A `params` element that contains coefficients for a number of different shape functions;
++ A projection (in the `retention_projection` variable);
++ Two `_collapsed` variables that contain the average values for each of the `days` and `retention` lists (in this example, only one value was provided for each day, so the `y_collapsed` list is the same as the `y` list, which was provided);
++ A `params` dict that contains coefficients for a number of different shape functions;
 + Some other miscellaneous data, like interpolation models;
 
 (**_Note that this example represents a very simple retention profile construction. `create_profile` can take many more inputs -- for a more in-depth explanation of the Theseus library, see the documentation on QuantMar_**)
 
-With the Facebook retention profile created, we can now start working with it to create cohort projections. First, we can visualize the profile with the `plot_retention` function:
+With the Facebook retention profile created, cohort projections can be generated from it. First, the profile can be visualized with the `plot_retention` function:
 
 ```python
 th.plot_retention( facebook )
@@ -88,6 +88,137 @@ Which should output a graph that looks like this:
 
 ![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/fb_retention.png "Facebook retention profile graph")
 
+Now a cohort projection can be generated. First, we'll create a list of cohorts, meaning a list containing the numbers of new users that joined the product on a daily basis, with each number representing a sequential day.
+
+Then, the `project_cohorted_DAU` function can be used to create a Pandas DataFrame containing the number of DAU present in the product, given the new users that joined via the cohorts, on the basis of the `facebook` retention profile. In this example, the function will take 4 inputs (although it can take many more; see the Documentation for more information):
+
++ profile: the retention profile to use;
++ periods: the number of periods to project forward
++ cohorts: a list of new user values 
++ start_date: the date at which the cohorts are added and from which the projection is made
+
+```python
+#cohorts are daily new user values, eg. the number of new users
+#joining the product on a given day
+cohorts = [1000, 1000, 1000, 1000, 1000 ]
+
+facebook_DAU = th.project_cohorted_DAU( profile = facebook, periods = 50, 
+    cohorts = cohorts, start_date = 1 )
+
+print( facebook_DAU )
+```
+
+The output of this should look like:
+
+```python
+                1     2     3     4     5    6    7    8    9   10  ...   41  \
+cohort_date                                                         ...        
+1            1000   807   734   684   645  613  587  564  543  525  ...  285   
+2               0  1000   807   734   684  645  613  587  564  543  ...  290   
+3               0     0  1000   807   734  684  645  613  587  564  ...  294   
+4               0     0     0  1000   807  734  684  645  613  587  ...  298   
+5               0     0     0     0  1000  807  734  684  645  613  ...  303   
+
+              42   43   44   45   46   47   48   49   50  
+cohort_date                                               
+1            281  277  273  270  266  262  259  255  252  
+2            285  281  277  273  270  266  262  259  255  
+3            290  285  281  277  273  270  266  262  259  
+4            294  290  285  281  277  273  270  266  262  
+5            298  294  290  285  281  277  273  270  266  
+
+[5 rows x 50 columns]
+```
+
+This DataFrame table shows how many of the original cohorts are present on any given day; the cohort numbers run down the Y axis and the days run across the X axis.
+
+To see this as a total, the `DAU_total` function can be used:
+
+```python
+facebook_total = th.DAU_total( facebook_DAU )
+
+print( facebook_total )
+```
+
+The output of which should look like:
+
+```python
+        1     2     3     4     5     6     7     8     9    10  ...    41  \
+DAU                                                              ...         
+0    1000  1807  2541  3225  3870  3483  3263  3093  2952  2832  ...  1470   
+
+       42    43    44    45    46    47    48    49    50  
+DAU                                                        
+0    1448  1427  1406  1386  1367  1348  1330  1312  1294  
+
+[1 rows x 50 columns]
+```
+
+This table represents the total number of DAU present in the product from those five cohorts over the course of a 50-period timeline.
+
+
+The `project_cohorted_DAU` can be used to project DAU out given some set of cohorts and a retention profile, but it can also be used to generate the number of new users, given some existing set of cohorts, to reach some DAU target over a timeline.
+
+In this example, the `cohorts` list contains five cohorts of 1000 new users each. If a marketing analyst wanted to know how many _additional_ cohorts, and of what size, would be needed in order to get the user base to 10,000 DAU, then they could use `project_cohorted_DAU` to do that by adding two parameters: `DAU_target` and `DAU_target_timeline`. `DAU_target` is the targeted number of DAU, and `DAU_target_timeline` is the number of days (which must be less than or equal to the number of `periods` being projected) over which the additional new users will be added.
+
+In action:
+
+```python
+facebook_DAU = th.project_cohorted_DAU( profile = facebook, periods = 50, cohorts = cohorts, 
+    DAU_target = 10000, DAU_target_timeline = 10, start_date = 1 )
+
+print( facebook_DAU )
+```
+
+Should produce the following output:
+
+```python
+                1     2     3     4     5     6     7     8     9    10  ...  \
+cohort_date                                                              ...   
+1            1000   807   734   684   645   613   587   564   543   525  ...   
+2               0  1000   807   734   684   645   613   587   564   543  ...   
+3               0     0  1000   807   734   684   645   613   587   564  ...   
+4               0     0     0  1000   807   734   684   645   613   587  ...   
+5               0     0     0     0  1000   807   734   684   645   613  ...   
+6               0     0     0     0     0  1613  1302  1184  1103  1040  ...   
+7               0     0     0     0     0     0  1757  1418  1290  1201  ...   
+8               0     0     0     0     0     0     0  1853  1495  1361  ...   
+9               0     0     0     0     0     0     0     0  1934  1561  ...   
+10              0     0     0     0     0     0     0     0     0  2005  ...   
+
+              41   42   43   44   45   46   47   48   49   50  
+cohort_date                                                    
+1            285  281  277  273  270  266  262  259  255  252  
+2            290  285  281  277  273  270  266  262  259  255  
+3            294  290  285  281  277  273  270  266  262  259  
+4            298  294  290  285  281  277  273  270  266  262  
+5            303  298  294  290  285  281  277  273  270  266  
+6            496  489  481  474  467  461  454  448  441  435  
+7            549  541  532  524  517  509  502  495  488  481  
+8            588  579  570  562  553  545  537  529  522  514  
+9            624  614  604  595  586  577  569  561  553  545  
+10           657  647  636  627  617  608  599  590  581  573  
+
+[10 rows x 50 columns]
+```
+
+This table reveals that the additional DNU needed to get to 10,000 overall DAU within the 10-period timeframe is: 1613, 1757, 1853, 1934, 2005. _Note that this approach seeks to minimize the number of total DNU added on any given day within the timeline_.
+
+Since the `facebook_DAU` variable is a pandas DataFrame, manipulating it to query data is fairly straightforward. For instance, to get only the DNU values, the following can be done:
+
+```python
+#get DNU from a DAU projection
+DNU = [ facebook_DAU.iloc[ x, x ] for x in range( 0, min( facebook_DAU.shape ) ) ]
+print( "All DNU: " + str( DNU ) )
+print( "Additional DNU: " + str( DNU[ len( cohorts ): ] ) )
+```
+
+The output of which is:
+
+```python
+All DNU: [1000, 1000, 1000, 1000, 1000, 1613, 1757, 1853, 1934, 2005]
+Additional DNU: [1613, 1757, 1853, 1934, 2005]
+```
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

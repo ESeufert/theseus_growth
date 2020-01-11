@@ -1,14 +1,33 @@
-#################################################################                                                               
-Theseus is an analytical tool suite for growth marketers
-author: Eric Benjamin Seufert,
-Twitter: @eric_seufert, email: eric@mobiledevmemo.com
-License: MIT
+# Theseus
 
-Theseus is a Python library for growth marketing analysis.
+Theseus is an open source library providing easy-to-use analysis tools for growth marketers. 
+
+Theseus is designed to be used for standalone analysis projects as well as in programmatic business intelligence environments. 
+
 Theseus provides a set of common functions for use in doing analysis related to product growth.
 
-Requirements: theseus-growth is written in Python3
+## Installation
 
-Installation: pip install theseus_growthi
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
 
-Importing: import theseus_growth
+```bash
+pip install theseus_growth
+```
+
+## Usage
+
+```python
+import foobar
+
+foobar.pluralize('word') # returns 'words'
+foobar.pluralize('goose') # returns 'geese'
+foobar.singularize('phenomena') # returns 'phenomenon'
+```
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)

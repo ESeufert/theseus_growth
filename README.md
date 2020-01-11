@@ -76,7 +76,7 @@ You won't ever actually interact directly with a retention profile variable, but
 + A `params` element that contains coefficients for a number of different shape functions;
 + Some other miscellaneous data, like interpolation models;
 
-(Note that this example represents a very simple retention profile construction. `create_profile` can take many more inputs -- for a more in-depth explanation of the Theseus library, see the documentation on QuantMar)
+(**_Note that this example represents a very simple retention profile construction. `create_profile` can take many more inputs -- for a more in-depth explanation of the Theseus library, see the documentation on QuantMar_**)
 
 With the Facebook retention profile created, we can now start working with it to create cohort projections. First, we can visualize the profile with the `plot_retention` function:
 

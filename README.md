@@ -4,7 +4,9 @@
 
 Theseus is an open source library that provides a set of common functions for use in doing analysis related to product growth: building retention profiles, projecting DAU levels, combining cohorts, segmenting cohorts by age, etc. Theseus can be used for marketing budgeting planning, scenario analysis, marketing campaign analysis, revenue projections, and in a media mix model.
 
-Theseus is designed to be used for standalone analysis projects as well as in programmatic business intelligence environments. 
+Theseus is designed to be used for standalone analysis projects as well as in programmatic business intelligence environments.
+
+Theseus is provided as open source software under the [MIT](https://choosealicense.com/licenses/mit/) license.
 
 ## Installation
 

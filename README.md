@@ -238,7 +238,7 @@ Note that this shows DAU reaching 10,000 by Day 10.
 
 The Facebook `forward DAU projection` can be visualized with the `plot_forward_DAU_stacked`, which takes three required parameters (more optional parameters are available -- see the documentation):
 + `forward_DAU`: the forward DAU projection being visualized (in this case, the `facebook_DAU` variable);
-+ `forward_DAU_labels`: a list of the cohort names as labels for the Y axis. The length of this list needs to match the number of cohorts in the forward DAU projection;
++ `forward_DAU_labels`: a list of the cohort names as labels for the stacked bars. The length of this list needs to match the number of cohorts in the forward DAU projection;
 + `forward_DAU_dates`: a list of dates as labels for the X axis. The length of this list needs to match the number of periods in the forward DAU projection;
 
 To visualize the Facebook forward DAU projection that reaches the DAU target of 10,000:
@@ -253,6 +253,21 @@ th.plot_forward_DAU_stacked( forward_DAU = facebook_DAU,
 This should produce a graph that looks like this:
 
 ![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/facebook_forward_DAU_projection.png "Facebook forward DAU projection")
+
+Note that the X axis labels and the legend values can be changed by altering the `forward_DAU_labels` and `forward_DAU_dates` paramters. For instance, to give the X axis actual date values (starting from January 1, 2020) and to make the legend more readable, the following can be done:
+
+```python
+from datetime import date, timedelta
+th.plot_forward_DAU_stacked( forward_DAU = facebook_DAU, 
+    forward_DAU_labels = [ 'Cohort ' + str( x ) for x in list( facebook_DAU.index ) ], 
+    forward_DAU_dates = [ date(2020, 1, 1) + timedelta(days=int( x ) ) for x in list( facebook_DAU.columns ) ]
+)
+```
+
+This should produce a graph that looks like this:
+
+![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/facebook_forward_DAU_readable.png "Facebook forward DAU projection")
+
 
 
 ## Contributing

@@ -92,10 +92,10 @@ Now a cohort projection can be generated. First, we'll create a list of cohorts,
 
 Then, the `project_cohorted_DAU` function can be used to create a Pandas DataFrame containing the number of DAU present in the product, given the new users that joined via the cohorts, on the basis of the `facebook` retention profile. In this example, the function will take 4 inputs (although it can take many more; see the Documentation for more information):
 
-+ profile: the retention profile to use;
-+ periods: the number of periods to project forward
-+ cohorts: a list of new user values 
-+ start_date: the date at which the cohorts are added and from which the projection is made
++ `profile`: the retention profile to use;
++ `periods`: the number of periods to project forward
++ `cohorts`: a list of new user values 
++ `start_date`: the date at which the cohorts are added and from which the projection is made
 
 ```python
 #cohorts are daily new user values, eg. the number of new users

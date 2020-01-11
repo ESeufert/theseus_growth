@@ -1,5 +1,22 @@
-# Theseus Growth
-# by Eric Benjamin Seufert: eric@mobiledevmemo.com
+'''
+
+Theseus Growth
+Author: Eric Benjamin Seufert, Heracles LLC (eric@mobiledevmemo.com)
+
+Copyright 2020 Heracles LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), 
+to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -45,9 +62,6 @@ class theseus():
         
         if self.test_retention_profile( days, retention_values ):
             profile = { 'x': days, 'y': retention_values }
-            
-        if days == None or retention_values == None or len( days ) < 2 or len( retention_values ) < 2:
-            raise Exception( 'Insufficient retention data provided!' )
         
         # build the params attribute, which contains profile function curve shape parameters
         # if the best fit function is requested, use teh get_retention_projection_best_fit method
@@ -95,9 +109,11 @@ class theseus():
         if not all( isinstance( y, ( int, float ) ) for y in y_data ):
             raise Exception( 'Y data can only contain integers and floats' )
         if not all( ( float( y ) <= 100 and float( y ) > 0 ) for y in y_data ):
-            raise Exception( 'Y data must be less than or equal to 100% and more than 0%' )
-        if not all( ( x >= 0 ) for x in x_data ):
-            raise Exception( 'X data must be positive' )
+            raise Exception( 'Y data must be less than or equal to 100 and more than 0' )
+        if not all( ( x > 0 ) for x in x_data ):
+            raise Exception( 'X data must be more than 0' )
+        if x_data == None or y_data == None or len( x_data ) < 2 or len( y_data ) < 2:
+            raise Exception( 'Insufficient retention data provided!' )
 
         return True
     
@@ -142,6 +158,9 @@ class theseus():
         #these are the cohorts of NEW users
         
         cohorts = pd.DataFrame()
+        if start_date < 0:
+            raise Exception( "Invalid start date" )
+
         if start_date == None or start_date == 0:
             start_date = 1
         this_date = start_date
@@ -285,7 +304,7 @@ class theseus():
     def project_aged_DAU( self, profile, periods, cohorts, start_date = 1, ages = [ 1 ] ):
         if len( ages ) == 0:
             raise Exception( "Age values cannot be empty" )
-        
+
         if any( x <= 0 for x in ages):
             raise Exception( "Age values cannot be less than 1" )
         
@@ -371,7 +390,7 @@ class theseus():
         DAU_target_timeline = None, start_date = 0, include_totals = False ): ###
         
         if DAU_target is not None and DAU_target_timeline is not None and DAU_target_timeline > periods:
-            raise Exception( "DAU target timeline is longer than the number of periods being projected!" )
+            raise Exception( "DAU target timeline is longer than the number of periods being projected" )
         
         if start_date == 0:
             start_date = 1
@@ -642,7 +661,7 @@ class theseus():
                 # a profile_max was provided so we need to extrapolate the interpolation out
                 # use the interpolation_s function
                 retention_projection = [ profile[ 'interpolation_s' ]( z ) for z in range( min( profile[ 'x' ] ), max( x2 ) + 1 ) ]
-            retention_projection = [ z if z > 0 else 0 for z in retention_projection ]
+        retention_projection = [ z if z > 0 else 0 for z in retention_projection ]
                 
         #replace all negative y values with 0
         retention_projection[ 1 ] = np.where( retention_projection[ 1 ] < 0, 0, retention_projection[ 1 ] ) 

@@ -18,13 +18,17 @@ pip install theseus_growth
 
 ## Usage
 
-```python
-import foobar
+Include the theseus_growth library
 
-foobar.pluralize('word') # returns 'words'
-foobar.pluralize('goose') # returns 'geese'
-foobar.singularize('phenomena') # returns 'phenomenon'
+```python
+import theseus_growth
 ```
+
+Instantiate a Theseus object
+```python
+th = theseus()
+```
+
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

@@ -254,20 +254,44 @@ This should produce a graph that looks like this:
 
 ![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/facebook_forward_DAU_projection.png "Facebook forward DAU projection")
 
-Note that the X axis labels and the legend values can be changed by altering the `forward_DAU_labels` and `forward_DAU_dates` paramters. For instance, to give the X axis actual date values (starting from January 1, 2020) and to make the legend more readable, the following can be done:
+Note that anything can be provided in the `forward_DAU_labels` and `forward_DAU_dates` parameters. For instance, to give the X axis actual date values (starting from January 1, 2020) and to make the legend more readable, the following can be done:
 
 ```python
 from datetime import date, timedelta
 th.plot_forward_DAU_stacked( forward_DAU = facebook_DAU, 
     forward_DAU_labels = [ 'Cohort ' + str( x ) for x in list( facebook_DAU.index ) ], 
-    forward_DAU_dates = [ date(2020, 1, 1) + timedelta(days=int( x ) ) for x in list( facebook_DAU.columns ) ]
+    forward_DAU_dates = [ date(2020, 1, 1) + timedelta(days=int( x ) - 1 ) for x in list( facebook_DAU.columns ) ]
 )
 ```
 
 This should produce a graph that looks like this:
 
-![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/facebook_forward_DAU_readable.png "Facebook forward DAU projection")
+![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/facebook_forward_DAU_readable.png.png "Facebook forward DAU projection")
 
+To create a second retention profile -- this time, for Google -- the `create_profile` profile can be used again. This time, the `profile_max` parameter will be supplied: when `profile_max` is provided, the retention profile is projected out to that day (when it is not provided, the retention profile is only projected out to the maximum value provided in the `days` parameter). Also, with the Google retention profile, a much larger dataset of days and retention values will be supplied, so the curve fit is done against many more (arbitrarily produced) data points:
+
+```python
+x_data = [ 1, 14, 60 ]
+y_data = [ 40, 22, 10 ]
+
+new_x = []
+for i, x in enumerate( x_data ):
+    this_x = x
+    for z in np.arange( 1, 100 ):
+        this_y = float( y_data[ i ] * ( 1 + ( random.randint( -20, 20 ) / 100 ) ) )
+        y_data.append( this_y )
+        new_x.append( this_x )
+        
+x_data.extend( new_x )
+
+google = th.create_profile( days = x_data, retention_values = y_data, profile_max = 180 )
+
+th.plot_retention( google )
+```
+
+The output of this should look something like this (the red dots are the actual values from `retention_values`):
+
+![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/google_retention_profile.png "Google retention profile")
 
 
 ## Contributing

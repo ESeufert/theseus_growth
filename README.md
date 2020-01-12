@@ -21,12 +21,12 @@ pip install theseus_growth
 Include the theseus_growth library
 
 ```python
-import theseus_growth
+import theseus_growth as th
 ```
 
 Instantiate a Theseus object
 ```python
-th = theseus()
+th = th.theseus()
 ```
 
 Working with Theseus involves using retention profiles to build cohort projections. To get started with analysis, you'll first build a retention profile using `days` and `retention` values, where each day value corresponds to a retention value, starting from Day 1 (ie. the day after a user has entered the product). Retention values should be provided as whole numbers (not decimals), eg. 30% retention for some given day would be represented as 30 and not .30. 
@@ -39,7 +39,7 @@ Here's an example:
 x_data = [ 1, 3, 7, 14, 30, 60, 90, 180 ]
 y_data = [ 80, 70, 55, 50, 30, 22, 10, 8 ]
 
-facebook = th.create_profile( days = x_data, retention_values = y_data, profile_max = 365 )
+facebook = th.create_profile( days = x_data, retention_values = y_data )
 ```
 
 In this example, Day 1 retention is set to 80, Day 3 retention is set to 70, Day 7 retention is set to 55, etc. Then, using these lists are supplied to the `create_profile` function to generate a retention profile (in this case, for Facebook, as per the variable name).
@@ -49,8 +49,6 @@ The curve fit to the retention data is decided by iterating over a number of dif
 If you `print` the `facebook` variable, the output will reveal a number of pieces of information about the retention profile:
 
 ```python
-print( facebook )
-
 {'x': [1, 3, 7, 14, 30, 60, 90, 180], 'y': [80, 70, 55, 50, 30, 22, 10, 8], 'y_collapsed': [80.0, 70.0, 55.0, 50.0, 30.0, 22.0, 10.0, 8.0], 'x_collapsed': [1, 3, 7, 14, 30, 60, 90, 180], 'interpolation_f': <scipy.interpolate.interpolate.interp1d object at 0x10c6234f8>, 'interpolation_s': <scipy.interpolate.fitpack2.InterpolatedUnivariateSpline object at 0x10c638588>, 'params': {'log': array([11.69432981,  0.85932489, 91.18858849]), 'exp': array([6.81055507e+01, 4.01937193e-02, 1.00786302e+01]), 'linear': array([-0.36314103, 58.10116222]), 'quad': array([ 4.23356783e-03, -1.09641452e+00,  6.94411850e+01]), 'weibull': array([136.70664663,   0.99893803]), 'power': array([88.3002565,  0.3123284]), 'interpolate': None}, 'errors': {'log': 61.1068291195336, 'exp': 101.38898207577283, 'linear': 1412.367783723572, 'quad': 364.49321231183075, 'weibull': 12824.82253493541, 'power': 440.6176923037875}, 'best_fit': 'log', 'retention_profile': 'best_fit', 'retention_projection': (array([  1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,
         14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,
         27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,  39,

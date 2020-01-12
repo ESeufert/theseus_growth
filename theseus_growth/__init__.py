@@ -181,28 +181,6 @@ class theseus():
 
         return model
     
-    def build_DAU_projection_map( self, cohorts, profile, forward_DAU, DAU_values ):
-
-        this_DAU_value = DAU_values[ 0 ]
-        this_date_value = int( cohorts[ 'date' ].tolist()[ -1 ] ) + 1
-
-        #advance the cohorts forward by one day to see what the natural DAU 
-        #from existing cohorts would be without any additions
-        forward_DAU = self.build_forward_DAU( profile, cohorts, 1 )
-        natural_DAU = forward_DAU.iloc[ :, -1 ].sum()
-
-        #calculate replacement DAU needed to hit the DAU goal
-        replacement_DAU = this_DAU_value - natural_DAU
-        
-        #add this new cohort on this day IF the replacement DAU is positive
-        cohorts = self.add_cohort( cohorts, this_date_value, ( 0 if replacement_DAU < 0 else replacement_DAU ) )
-
-        #if this was the last DAU target to hit, return the values
-        if len( DAU_values ) == 1:
-            return self.build_forward_DAU( profile, cohorts, 0 )
-        #if there are more DAU targets left to hit, remove this target and run the process again recursively
-        return self.build_DAU_projection_map( cohorts, profile, forward_DAU, DAU_values[ 1: ] )
-    
     def project_cohort( self, cohort, profile, periods ):
         
         #the function name for the best fit
@@ -220,7 +198,7 @@ class theseus():
         
         return this_cohort
     
-    def build_forward_DAU( self, profile, forward_DAU, cohort, periods ):
+    def build_forward_DAU( self, profile, forward_DAU, cohort, periods, start_date ):
         ### this function takes a set of cohorts (which is a list of DNU)
         ### and a retention profile and projects out what the DAU will be
         ### based on the retention to some map_length
@@ -244,7 +222,10 @@ class theseus():
         #eg if it's the first cohort, no zeroes
         #second cohort, 1 zero, etc.
         delta_count = len( forward_DAU )
-        this_cohort = [ len( forward_DAU ) ] + ( [ 0 ] * ( delta_count + 1 ) ) + this_cohort
+        if start_date == 1:
+            this_cohort = [ len( forward_DAU ) ] + ( [ 0 ] * ( delta_count ) ) + this_cohort
+        else:
+            this_cohort = [ len( forward_DAU ) ] + ( [ 0 ] * ( delta_count + 1 ) ) + this_cohort
         #now remove that many values from the end
         if delta_count > 0:
             del this_cohort[ -delta_count: ]
@@ -290,7 +271,7 @@ class theseus():
             i += 1
             
         #sort the columns
-        columns = sorted( [ int( c ) for c in combined_DAU.columns if c not in [ 'DAU', 'profile', 'cohort_date' ] ] )
+        columns = sorted( [ int( c ) for c in combined_DAU.columns if c not in [ 'DAU', 'profile', 'cohort_date', 'age' ] ] )
         columns = [ str( c ) for c in columns ]
         if labels != None:
             columns += [ 'profile' ]
@@ -395,7 +376,7 @@ class theseus():
         if DAU_target is not None and DAU_target_timeline is not None and DAU_target_timeline > periods:
             raise Exception( "DAU target timeline is longer than the number of periods being projected" )
         
-        if start_date == 0:
+        if start_date == 0 or start_date == None:
             start_date = 1
             
         #create a list of dates
@@ -403,13 +384,13 @@ class theseus():
             dates = list( range( start_date, ( start_date + periods ) ) )
         else:
             dates = list( range( start_date, ( start_date + periods + 1 ) ) )
-        print( dates )
+
         dates = [ str( x ) for x in dates ]
         #create the blank dataframe that will contain the forward_DAU
         forward_DAU = pd.DataFrame( columns = [ 'cohort_date' ] + dates )
         ###build the initial forward DAU from the cohorts
         for cohort in cohorts:
-            forward_DAU = self.build_forward_DAU( profile, forward_DAU, cohort, periods )
+            forward_DAU = self.build_forward_DAU( profile, forward_DAU, cohort, periods, start_date )
         
         # if DAU_target is set, it means we are trying to build to some target
         if DAU_target != None:
@@ -444,7 +425,7 @@ class theseus():
                 start_DAU = forward_DAU.iloc[ :, tracker ].sum()
                 DAU_needed = ( 0 if DAU_target - start_DAU < 0 else DAU_target - start_DAU )
                 
-                forward_DAU = self.build_forward_DAU( profile, forward_DAU, DAU_needed, periods )
+                forward_DAU = self.build_forward_DAU( profile, forward_DAU, DAU_needed, periods, start_date )
                 
                 tracker += 1
                 

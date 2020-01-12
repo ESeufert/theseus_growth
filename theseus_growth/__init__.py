@@ -62,6 +62,9 @@ class theseus():
         
         if self.test_retention_profile( days, retention_values ):
             profile = { 'x': days, 'y': retention_values }
+
+        if profile_max != None and ( not isinstance( profile_max, int ) or profile_max < max( days ) ):
+            raise Exception( "profile_max must be an integer greater than or equal to maximum value of Days data" )
         
         # build the params attribute, which contains profile function curve shape parameters
         # if the best fit function is requested, use teh get_retention_projection_best_fit method
@@ -241,7 +244,7 @@ class theseus():
         #eg if it's the first cohort, no zeroes
         #second cohort, 1 zero, etc.
         delta_count = len( forward_DAU )
-        this_cohort = [ len( forward_DAU ) ] + ( [ 0 ] * delta_count ) + this_cohort
+        this_cohort = [ len( forward_DAU ) ] + ( [ 0 ] * ( delta_count + 1 ) ) + this_cohort
         #now remove that many values from the end
         if delta_count > 0:
             del this_cohort[ -delta_count: ]
@@ -387,7 +390,7 @@ class theseus():
         return aged_DAU
     
     def project_cohorted_DAU( self, profile, periods, cohorts, DAU_target = None, 
-        DAU_target_timeline = None, start_date = 0, include_totals = False ): ###
+        DAU_target_timeline = None, start_date = 1 ): ###
         
         if DAU_target is not None and DAU_target_timeline is not None and DAU_target_timeline > periods:
             raise Exception( "DAU target timeline is longer than the number of periods being projected" )
@@ -396,7 +399,11 @@ class theseus():
             start_date = 1
             
         #create a list of dates
-        dates = list( range( start_date, ( start_date + periods ) ) )
+        if start_date == 1:
+            dates = list( range( start_date, ( start_date + periods ) ) )
+        else:
+            dates = list( range( start_date, ( start_date + periods + 1 ) ) )
+        print( dates )
         dates = [ str( x ) for x in dates ]
         #create the blank dataframe that will contain the forward_DAU
         forward_DAU = pd.DataFrame( columns = [ 'cohort_date' ] + dates )
@@ -765,4 +772,3 @@ class theseus():
             file_name = file_name + '.json'
             
         df.to_json( path_or_buf = file_name, orient='index' )
-        

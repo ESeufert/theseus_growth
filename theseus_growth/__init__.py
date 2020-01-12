@@ -58,7 +58,7 @@ class theseus():
         
         return None
     
-    def create_profile( self, days = None, retention_values = None, form = 'best_fit', profile_max = None ):
+    def create_profile( self, days, retention_values, form = 'best_fit', profile_max = None ):
         
         if self.test_retention_profile( days, retention_values ):
             profile = { 'x': days, 'y': retention_values }
@@ -236,14 +236,14 @@ class theseus():
         
         return forward_DAU
     
-    def DAU_total( self, DAU_projection ):
-        if not isinstance( DAU_projection, pd.DataFrame ) or len( DAU_projection ) < 2:
-            raise Exception( 'DAU Projection is malformed. Must be a dataframe with at least 2 rows.' )
+    def DAU_total( self, forward_DAU ):
+        if not isinstance( forward_DAU, pd.DataFrame ) or len( forward_DAU ) < 2:
+            raise Exception( 'Forward DAU Projection is malformed. Must be a dataframe with at least 2 rows.' )
             
         #get the sums of the columns
-        total_series = DAU_projection.sum()
+        total_series = forward_DAU.sum()
 
-        DAU_total = pd.DataFrame( columns = [ 'DAU' ] + DAU_projection.columns.tolist() ).set_index( 'DAU' )
+        DAU_total = pd.DataFrame( columns = [ 'DAU' ] + forward_DAU.columns.tolist() ).set_index( 'DAU' )
         DAU_total.loc[ len( DAU_total ) ] = total_series
         
         return DAU_total
@@ -285,7 +285,7 @@ class theseus():
     # Project Aged DAU
     # Will project out the number of people that are at least X days old on a given day
     ######
-    def project_aged_DAU( self, profile, periods, cohorts, start_date = 1, ages = [ 1 ] ):
+    def project_aged_DAU( self, profile, periods, cohorts, ages, start_date = 1 ):
         if len( ages ) == 0:
             raise Exception( "Age values cannot be empty" )
 
@@ -328,7 +328,7 @@ class theseus():
     # Project Exact Aged DAU
     # Will project out the number of people that are exactly X days old on a given day
     ######
-    def project_exact_aged_DAU( self, profile, periods, cohorts, start_date = 1, ages = [ 1 ] ):
+    def project_exact_aged_DAU( self, profile, periods, cohorts, ages, start_date = 1 ):
         #create a list of dates
         if len( ages ) == 0:
             raise Exception( "Age values cannot be empty" )
@@ -372,6 +372,12 @@ class theseus():
     
     def project_cohorted_DAU( self, profile, periods, cohorts, DAU_target = None, 
         DAU_target_timeline = None, start_date = 1 ): ###
+
+        if not isinstance( periods, int ) or periods < 2:
+            raise Exception( "The periods parameter must be an integer greater than 1" )
+
+        if len( cohorts ) < 1 or not all( isinstance( x, int ) for x in cohorts ) or not all( x >= 1 for x in cohorts ):
+            raise Exception( "Must provide at least one cohort value, and all cohort values must be greater than 0" )
         
         if DAU_target is not None and DAU_target_timeline is not None and DAU_target_timeline > periods:
             raise Exception( "DAU target timeline is longer than the number of periods being projected" )
@@ -397,6 +403,9 @@ class theseus():
             
             if DAU_target_timeline == None:
                 raise Exception( 'DAU Target Projections require a DAU Target Timeline' )
+
+            if DAU_target_timeline + len( cohorts ) - 1 > periods:
+                raise Exception( "DAU target timeline extends past the number of periods being projected. DAU target timeline must be less than or equal to the number of periods minus the number of cohorts.")
                 
             tracker = len( cohorts ) + 1
 
@@ -463,6 +472,8 @@ class theseus():
 
         plt.legend()
         plt.show()
+
+        return None
         
     def stacked_bar( self, data, series_labels, category_labels=None, 
                     show_values=False, value_format="{}", y_label=None, 
@@ -581,6 +592,8 @@ class theseus():
             category_labels=forward_DAU_dates, 
             show_values=show_values, value_format="{}", y_label='DAU', 
             grid=True, reverse=False, show_totals_values=show_totals_values, totals = totals )
+
+        return None
         
     ####
     # Core Retention Profile Functions
@@ -734,7 +747,7 @@ class theseus():
     # OUTPUT
     ##########################
     
-    def to_excel( self, df, file_name, sheet_name ):
+    def to_excel( self, df, file_name = None, sheet_name = None ):
         if not file_name:
             file_name = 'theseus_output.xlsx'
         if not sheet_name:
@@ -744,6 +757,8 @@ class theseus():
             file_name = file_name + '.xlsx'
         
         df.to_excel( file_name, sheet_name=sheet_name)
+
+        return None
         
     def to_json( self, df, file_name = None ):
         if not file_name:
@@ -753,3 +768,5 @@ class theseus():
             file_name = file_name + '.json'
             
         df.to_json( path_or_buf = file_name, orient='index' )
+
+        return None

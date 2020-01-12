@@ -1,6 +1,6 @@
 # Theseus
 
-![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/theseus_square-1.png "Theseus Growth")
+![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/Version-6.png "Theseus Growth")
 
 ## Theseus provides straightforward tools for cohort analysis and general marketing performance analysis. Theseus was created by [Eric Benjamin Seufert](https://www.twitter.com/eric_seufert) of [Heracles](https://www.hrcls.co).
 
@@ -11,6 +11,10 @@ Theseus is designed to be used for standalone analysis projects as well as in pr
 Theseus is provided as open source software under the [MIT](https://choosealicense.com/licenses/mit/) license.
 
 Note that Theseus is in a __beta__ state; bugs are to be expected.
+
+## Documentation
+
+The documentation for Theseus can be found in [this QuantMar thread](https://quantmar.com/529/How-can-use-the-theseus-python-library-to-do-cohort-analysis).
 
 ## Installation
 

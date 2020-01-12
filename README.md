@@ -8,10 +8,6 @@ Theseus is designed to be used for standalone analysis projects as well as in pr
 
 Theseus is provided as open source software under the [MIT](https://choosealicense.com/licenses/mit/) license.
 
-## Documentation
-
-You can find the full Theseus documentation on QuantMar.
-
 ## Installation
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
@@ -78,8 +74,6 @@ You won't ever actually interact directly with a retention profile variable, but
 + A `params` dict that contains coefficients for a number of different shape functions;
 + Some other miscellaneous data, like interpolation models;
 
-(**_Note that this example represents a very simple retention profile construction. `create_profile` can take many more inputs -- for a more in-depth explanation of the Theseus library, see the documentation on QuantMar_**)
-
 With the Facebook retention profile created, cohort projections can be generated from it. First, the profile can be visualized with the `plot_retention` function:
 
 ```python
@@ -92,7 +86,7 @@ Which should output a graph that looks like this:
 
 Now a DAU projection based on cohorts can be generated -- in the Theseus library, this is called a **`forward DAU projection`**. First, we'll create a list of cohorts, meaning a list containing the numbers of new users that joined the product on a daily basis, with each number representing a sequential day.
 
-Then, the `project_cohorted_DAU` function can be used to create a Pandas DataFrame containing the number of DAU present in the product, given the new users that joined via the cohorts, on the basis of the `facebook` retention profile. In this example, the function will take 4 inputs (although it can take many more; see the Documentation for more information):
+Then, the `project_cohorted_DAU` function can be used to create a Pandas DataFrame containing the number of DAU present in the product, given the new users that joined via the cohorts, on the basis of the `facebook` retention profile. In this example, the function will take 4 inputs:
 
 + `profile`: the retention profile to use;
 + `periods`: the number of periods to project forward
@@ -238,7 +232,7 @@ DAU
 
 Note that this shows DAU reaching 10,000 by Day 10.
 
-The Facebook `forward DAU projection` can be visualized with the `plot_forward_DAU_stacked`, which takes three required parameters (more optional parameters are available -- see the documentation):
+The Facebook `forward DAU projection` can be visualized with the `plot_forward_DAU_stacked`, which takes three required parameters:
 + `forward_DAU`: the forward DAU projection being visualized (in this case, the `facebook_DAU` variable);
 + `forward_DAU_labels`: a list of the cohort names as labels for the stacked bars. The length of this list needs to match the number of cohorts in the forward DAU projection;
 + `forward_DAU_dates`: a list of dates as labels for the X axis. The length of this list needs to match the number of periods in the forward DAU projection;

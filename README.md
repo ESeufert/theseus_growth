@@ -1,5 +1,7 @@
 # Theseus
 
+![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/Transparent-6.png "Theseus Growth")
+
 ## Theseus provides straightforward tools for cohort analysis and general marketing performance analysis. Theseus was created by [Eric Benjamin Seufert](https://www.twitter.com/eric_seufert) of [Heracles](https://www.hrcls.co).
 
 Theseus is an open source library that provides a set of common functions for use in doing analysis related to product growth: building retention profiles, projecting DAU levels, combining cohorts, segmenting cohorts by age, etc. Theseus can be used for marketing budgeting planning, scenario analysis, marketing campaign analysis, revenue projections, and in a media mix model.
@@ -7,6 +9,8 @@ Theseus is an open source library that provides a set of common functions for us
 Theseus is designed to be used for standalone analysis projects as well as in programmatic business intelligence environments.
 
 Theseus is provided as open source software under the [MIT](https://choosealicense.com/licenses/mit/) license.
+
+Note that Theseus is in a __beta__ state; bugs are to be expected.
 
 ## Installation
 
@@ -40,6 +44,8 @@ x_data = [ 1, 3, 7, 14, 30, 60, 90, 180 ]
 y_data = [ 80, 70, 55, 50, 30, 22, 10, 8 ]
 
 facebook = th.create_profile( days = x_data, retention_values = y_data )
+
+print( facebook )
 ```
 
 In this example, Day 1 retention is set to 80, Day 3 retention is set to 70, Day 7 retention is set to 55, etc. Then, using these lists are supplied to the `create_profile` function to generate a retention profile (in this case, for Facebook, as per the variable name).
@@ -265,6 +271,9 @@ This should produce a graph that looks like this:
 To create a second retention profile -- this time, for Google -- the `create_profile` profile can be used again. This time, the `profile_max` parameter will be supplied: when `profile_max` is provided, the retention profile is projected out to that day (when it is not provided, the retention profile is only projected out to the maximum value provided in the `days` parameter). Also, with the Google retention profile, a much larger dataset of days and retention values will be supplied, so the curve fit is done against many more (arbitrarily produced) data points:
 
 ```python
+import numpy as np
+import random
+
 x_data = [ 1, 14, 60 ]
 y_data = [ 40, 22, 10 ]
 
@@ -291,7 +300,7 @@ To build a forward DAU projection for Google, the following can be run. Note tha
 
 ```python
 cohorts = [ 2000, 4000, 1200, 2200, 1700, 1300, 4200, 9200 ]
-google_DAU = th.project_cohorted_DAU( profile = google, periods = 30, cohorts = cohorts, 
+google_DAU = th.project_cohorted_DAU( profile = google, periods = 40, cohorts = cohorts, 
     DAU_target = 20000, DAU_target_timeline = 20, start_date = 10 )
 
 from datetime import date, timedelta

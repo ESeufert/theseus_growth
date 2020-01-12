@@ -10,7 +10,7 @@ Theseus is provided as open source software under the [MIT](https://choosealicen
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install Theseus.
 
 ```bash
 pip install theseus_growth

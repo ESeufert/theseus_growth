@@ -309,9 +309,44 @@ th.plot_forward_DAU_stacked( forward_DAU = google_DAU,
 )
 ```
 
-![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/google_forward_DAU.png "Google retention profile")
+![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/google_forward_DAU-1.png "Google forward DAU")
 
 Note the lumpiness of the first few days of DAU -- this is a result of 1) the volatile number of DAU in the initial cohorts and 2) the relatively low Google retention ( 40% on Day 1). Also note the dates on the X axis: the chart starts on January 10th, 2020 since the `start_date` variable is set to 10.
+
+In order to get a fuller picture of product DAU, the Facebook and Google forward DAU projections can be combined with the `combine_DAU` function. The totals for each forward DAU projection should be used, otherwise the graph would be too busy to read:
+
+```python
+google_total = th.DAU_total( google_DAU )
+
+combined_DAU = th.combine_DAU( DAU_totals = [ facebook_total, google_total ], labels = [ "Facebook", "Google" ] )
+
+th.plot_forward_DAU_stacked( forward_DAU = combined_DAU, 
+    forward_DAU_labels = list( combined_DAU.index ), 
+    forward_DAU_dates = [ date(2020, 1, 1) + timedelta(days=int( x ) - 1 ) for x in list( combined_DAU.columns ) ]
+)
+```
+
+The output of the above should look like:
+
+![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/download.png "Combined Facebook and Google forward DAU")
+
+In order to actually work with these projections, Theseus comes with two file output functions: `to_excel` and `to_json`. 
+
+`to_excel` can take three parameters:
++ `df`: the forward DAU projection dataframe being output;
++ `file_name`: the name of the file that will be output (optional)
++ `sheet_name`: the name of the sheet that the data will be written to (optional)
+
+`to_excel` will save a .xlsx file in the directory from which the Theseus object is being executed.
+
+`to_json` can take two parameters:
++ `df`: the forward DAU projection dataframe being output;
++ `file_name`: the name of the file that will be output (optional)
+
+`to_json` will save a .json file in the directory from which the Theseus object is being executed.
+
+
+
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

@@ -330,6 +330,156 @@ The output of the above should look like:
 
 ![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/download.png "Combined Facebook and Google forward DAU")
 
+One important aspect of cohort analysis is age segmentation: breaking the user base out into segments based on user age. Theseus comes with two functions to do this: `project_aged_DAU` and `project_exact_aged_DAU`. 
+
+`project_aged_DAU` presents the DAU projection in terms of _minimum_ user ages: it can display the number of users that are _at least_ X days old on a given date.
+
+`project_exact_aged_DAU` presents the DAU projection in terms of _absolute_ user ages: it can display the number of users that are _exactly_ X days old on a given date.
+
+Both functions take five parameters:
++ `profile`: the retention profile being used for the projection;
++ `periods`: the number of periods for which the forward DAU projection is being made;
++ `cohorts`: the cohorts that are being projected forward;
++ `start_date`: the start date of the projection;
++ `ages`: a list of ages that the projection should be broken down for. For `project_aged_DAU`, the forward DAU projection will be broken out to show the number of users per day that are _at least_ as old as every age in the list. For `project_exact_aged_DAU`, the forward DAU projection will be broken out to show the number of users per day that are _exactly_ as old as every age in the list.
+
+An example of `project_aged_DAU`:
+
+```python
+x_data = [ 1, 14, 30, 90 ]
+y_data = [ 25, 18, 12, 8 ]
+
+#form options: 'log', 'exp', 'linear', 'quad', 'weibull', 'power'
+snapchat = th.create_profile( days = x_data, retention_values = y_data, profile_max = 120 )
+
+snapchat_aged_DAU = th.project_aged_DAU( snapchat, 20, [ 100, 200, 300, 400, 500 ], 
+    start_date = 1, ages = [ 3, 7, 14 ] )
+
+print( snapchat_aged_DAU )
+```
+
+This should produce output that looks like the following:
+
+```python
+     1  2   3   4    5    6    7    8    9   10   11   12   13   14   15   16  \
+age                                                                             
+3    0  0  24  71  143  236  352  343  336  327  320  312  305  296  290  282   
+7    0  0   0   0    0    0   22   65  130  214  320  312  305  296  290  282   
+14   0  0   0   0    0    0    0    0    0    0    0    0    0   18   55  108   
+
+      17   18   19   20  
+age                      
+3    275  268  260  254  
+7    275  268  260  254  
+14   180  268  260  254 
+```
+
+Taking column 10 as an example: 869 users are _at least_ 3 days old, 563 users are _at least_ 7 days old, and 0 users are _at least_ 14 days old. 
+
+An example of `project_exact_aged_DAU`:
+
+```python
+snapchat_exact_aged_DAU = th.project_exact_aged_DAU( snapchat, 20, [ 100, 200, 300, 400, 500 ], 
+    start_date = 1, ages = [ 3, 7, 14 ] )
+
+print( snapchat_exact_aged_DAU )
+```
+
+This should produce output that looks like the following:
+
+```python
+     1  2   3   4   5   6    7   8   9  10   11 12 13  14  15  16  17  18 19  \
+age                                                                            
+3    0  0  24  48  73  97  121   0   0   0    0  0  0   0   0   0   0   0  0   
+7    0  0   0   0   0   0   22  44  66  88  110  0  0   0   0   0   0   0  0   
+14   0  0   0   0   0   0    0   0   0   0    0  0  0  18  37  55  74  93  0   
+
+    20  
+age     
+3    0  
+7    0  
+14   0
+```
+
+Note that each "age" only has five values; this is because there are only five cohorts provided in the example (each cohort will be an exact age only once).
+
+Also note that if 1 is passed in the `ages` list for `project_exact_aged_DAU`, it produces a list of DNU:
+
+```python
+snapchat_exact_aged_DAU = th.project_exact_aged_DAU( snapchat, 20, [ 100, 200, 300, 400, 500 ], 
+    start_date = 1, ages = [ 1 ] )
+
+print( snapchat_exact_aged_DAU )
+```
+
+```python
+       1    2    3    4    5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+age                                                                      
+1    100  200  300  400  500  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+```
+
+One interesting use case for user base segments is calculating percentages of the overall user base that are at least X days old -- often, certain monetization moments are only available to users after some amount of time, so being able to break a user base out into age groups to know what percentage of the user base is capable of monetizing is helpful. This can be done with Theseus by creating a Total forward DAU projection and combining it with the aged projection:
+
+```python
+snapchat_DAU = th.project_cohorted_DAU( profile = snapchat, periods = 20, cohorts = [ 100, 200, 300, 400, 500 ], 
+    start_date = 1 )
+
+snapchat_total = th.DAU_total( snapchat_DAU )
+
+combined_DAU = th.combine_DAU( DAU_totals = [ snapchat_aged_DAU, snapchat_total ], 
+    labels = [ [ "Age " + str( x ) for x in list( snapchat_aged_DAU.index ) ], "Total" ] 
+)
+
+for x in list( snapchat_aged_DAU.index ):
+    combined_DAU.loc[ 'Age ' + str( x ) + ' Pct' ] = combined_DAU.apply( lambda z: ( z[ 'Age ' + str( x )] / z[ 'Total' ] ) )
+
+print( combined_DAU )
+```
+
+This would output something that looks like:
+
+```python
+                1      2           3           4           5           6  \
+profile                                                                    
+Age 3         0.0    0.0   24.000000   71.000000  143.000000  236.000000   
+Age 7         0.0    0.0    0.000000    0.000000    0.000000    0.000000   
+Age 14        0.0    0.0    0.000000    0.000000    0.000000    0.000000   
+Total       100.0  224.0  373.000000  545.000000  742.000000  360.000000   
+Age 3 Pct     0.0    0.0    0.064343    0.130275    0.192722    0.655556   
+Age 7 Pct     0.0    0.0    0.000000    0.000000    0.000000    0.000000   
+Age 14 Pct    0.0    0.0    0.000000    0.000000    0.000000    0.000000   
+
+                   7           8           9          10     11     12     13  \
+profile                                                                         
+Age 3       352.0000  343.000000  336.000000  327.000000  320.0  312.0  305.0   
+Age 7        22.0000   65.000000  130.000000  214.000000  320.0  312.0  305.0   
+Age 14        0.0000    0.000000    0.000000    0.000000    0.0    0.0    0.0   
+Total       352.0000  343.000000  336.000000  327.000000  320.0  312.0  305.0   
+Age 3 Pct     1.0000    1.000000    1.000000    1.000000    1.0    1.0    1.0   
+Age 7 Pct     0.0625    0.189504    0.386905    0.654434    1.0    1.0    1.0   
+Age 14 Pct    0.0000    0.000000    0.000000    0.000000    0.0    0.0    0.0   
+
+                    14          15          16          17     18     19  \
+profile                                                                    
+Age 3       296.000000  290.000000  282.000000  275.000000  268.0  260.0   
+Age 7       296.000000  290.000000  282.000000  275.000000  268.0  260.0   
+Age 14       18.000000   55.000000  108.000000  180.000000  268.0  260.0   
+Total       296.000000  290.000000  282.000000  275.000000  268.0  260.0   
+Age 3 Pct     1.000000    1.000000    1.000000    1.000000    1.0    1.0   
+Age 7 Pct     1.000000    1.000000    1.000000    1.000000    1.0    1.0   
+Age 14 Pct    0.060811    0.189655    0.382979    0.654545    1.0    1.0   
+
+               20  
+profile            
+Age 3       254.0  
+Age 7       254.0  
+Age 14      254.0  
+Total       254.0  
+Age 3 Pct     1.0  
+Age 7 Pct     1.0  
+Age 14 Pct    1.0 
+```
+
 In order to actually work with these projections, Theseus comes with two file output functions: `to_excel` and `to_json`. 
 
 `to_excel` can take three parameters:

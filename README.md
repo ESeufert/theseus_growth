@@ -163,7 +163,7 @@ This table represents the total number of DAU present in the product from those 
 
 The `project_cohorted_DAU` can be used to project DAU out given some set of cohorts and a retention profile, but it can also be used to generate the number of new users needed to reach a DAU target over a timeline, given some existing set of cohorts.
 
-In this example, the `cohorts` list contains five cohorts of 1000 new users each. If a marketing analyst wanted to know how many _additional_ cohorts, and of what size, would be needed in order to get the user base to 10,000 DAU, then they could use `project_cohorted_DAU` to do that by adding two parameters: `DAU_target` and `DAU_target_timeline`. `DAU_target` is the targeted number of DAU, and `DAU_target_timeline` is the number of days (which must be less than or equal to the number of `periods` being projected) over which the additional new users will be added.
+In this example, the `cohorts` list contains five cohorts of 1000 new users each. If a marketing analyst wanted to know how many _additional_ cohorts, and of what size, would be needed in order to get the user base to 10,000 DAU, then they could use `project_cohorted_DAU` to do that by adding two parameters: `DAU_target` and `DAU_target_timeline`. `DAU_target` is the targeted number of DAU, and `DAU_target_timeline` is the number of days over which the additional new users will be added.
 
 In action:
 

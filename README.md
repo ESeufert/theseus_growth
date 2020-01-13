@@ -1,6 +1,9 @@
 # Theseus
 
-![alt text](https://mobiledevmemo.com/wp-content/uploads/2020/01/Version-6.png "Theseus Growth")
+
+
+<img src="https://mobiledevmemo.com/wp-content/uploads/2020/01/Version-6.png" 
+	style="display: block; margin-left: auto; margin-right: auto; max-width: 60%;" />
 
 ## Theseus provides straightforward tools for cohort analysis and general marketing performance analysis. Theseus was created by [Eric Benjamin Seufert](https://www.twitter.com/eric_seufert) of [Heracles](https://www.hrcls.co).
 

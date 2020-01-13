@@ -52,9 +52,9 @@ facebook = th.create_profile( days = x_data, retention_values = y_data )
 print( facebook )
 ```
 
-In this example, Day 1 retention is set to 80, Day 3 retention is set to 70, Day 7 retention is set to 55, etc. Then, using these lists are supplied to the `create_profile` function to generate a retention profile (in this case, for Facebook, as per the variable name).
+In this example, Day 1 retention is set to 80, Day 3 retention is set to 70, Day 7 retention is set to 55, etc. Then, these lists are supplied to the `create_profile` function to generate a retention profile (in this case, for Facebook, as per the variable name).
 
-The curve fit to the retention data is decided by iterating over a number of different function forms to find the one that fits best with the smallest error. The functions tested are: #form options: `[ 'log', 'exp', 'linear', 'quad', 'weibull', 'power' ]`. A specific function can be forced onto the data by using the `form` parameter with the `create_profile` function; when the `form` parameter is not set, `create_profile` defaults to finding the best fit function.
+The curve fit to the retention data is decided by iterating over a number of different function forms to find the one that fits best with the smallest error. The functions tested are: `[ 'log', 'exp', 'linear', 'quad', 'weibull', 'power', 'interpolate' ]`. A specific function can be forced onto the data by using the `form` parameter with the `create_profile` function; when the `form` parameter is not set, `create_profile` defaults to finding the best fit function.
 
 If you `print` the `facebook` variable, the output will reveal a number of pieces of information about the retention profile:
 
@@ -161,7 +161,7 @@ DAU
 This table represents the total number of DAU present in the product from those five cohorts over the course of a 50-period timeline.
 
 
-The `project_cohorted_DAU` can be used to project DAU out given some set of cohorts and a retention profile, but it can also be used to generate the number of new users, given some existing set of cohorts, to reach some DAU target over a timeline.
+The `project_cohorted_DAU` can be used to project DAU out given some set of cohorts and a retention profile, but it can also be used to generate the number of new users needed to reach a DAU target over a timeline, given some existing set of cohorts.
 
 In this example, the `cohorts` list contains five cohorts of 1000 new users each. If a marketing analyst wanted to know how many _additional_ cohorts, and of what size, would be needed in order to get the user base to 10,000 DAU, then they could use `project_cohorted_DAU` to do that by adding two parameters: `DAU_target` and `DAU_target_timeline`. `DAU_target` is the targeted number of DAU, and `DAU_target_timeline` is the number of days (which must be less than or equal to the number of `periods` being projected) over which the additional new users will be added.
 

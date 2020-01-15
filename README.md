@@ -212,7 +212,6 @@ To get only the DNU (new users) values from a forward DAU projection, the `get_D
 
 ```python
 #get DNU from a DAU projection
-#get DNU from a DAU projection
 facebook_DNU = th.get_DNU( facebook_DAU )
 print( facebook_DNU )
 ```

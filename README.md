@@ -147,13 +147,13 @@ print( facebook_total )
 The output of which should look like:
 
 ```python
-        1     2     3     4     5     6     7     8     9    10  ...    41  \
-DAU                                                              ...         
-0    1000  1807  2541  3225  3870  3483  3263  3093  2952  2832  ...  1470   
+          1    2     3     4     5     6     7     8     9     10  ...    41  \
+Value                                                              ...         
+DAU    1000  808  1734  2491  3186  4548  5911  7274  8637  10000  ...  4312   
 
-       42    43    44    45    46    47    48    49    50  
-DAU                                                        
-0    1448  1427  1406  1386  1367  1348  1330  1312  1294  
+         42    43    44    45    46    47    48    49    50  
+Value                                                        
+DAU    4246  4182  4119  4058  3999  3941  3888  3831  3779  
 
 [1 rows x 50 columns]
 ```
@@ -208,20 +208,27 @@ cohort_date
 
 This table reveals that the additional DNU needed to get to 10,000 overall DAU within the 10-period timeframe is: 1613, 1757, 1853, 1934, 2005. _Note that this approach seeks to minimize the number of total DNU added on any given day within the timeline_.
 
-Since the `facebook_DAU` variable is a pandas DataFrame, manipulating it to query data is fairly straightforward. For instance, to get only the DNU values from `facebook_DAU`, the following can be done:
+To get only the DNU (new users) values from a forward DAU projection, the `get_DNU` function can be used:
 
 ```python
 #get DNU from a DAU projection
-DNU = [ facebook_DAU.iloc[ x, x ] for x in range( 0, min( facebook_DAU.shape ) ) ]
-print( "All DNU: " + str( DNU ) )
-print( "Additional DNU: " + str( DNU[ len( cohorts ): ] ) )
+#get DNU from a DAU projection
+facebook_DNU = th.get_DNU( facebook_DAU )
+print( facebook_DNU )
 ```
 
-The output of which is:
+The output of which should look like:
 
 ```python
-All DNU: [1000, 1000, 1000, 1000, 1000, 1613, 1757, 1853, 1934, 2005]
-Additional DNU: [1613, 1757, 1853, 1934, 2005]
+       cohort_date    1       2       3       4       5       6       7  \
+Value                                                                     
+DNU           1000  1.0  1000.0  1000.0  1000.0  1710.0  1881.0  1994.0   
+
+            8       9  ...   41   42   43   44   45   46   47   48   49   50  
+Value                  ...                                                    
+DNU    2090.0  2171.0  ...  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  
+
+[1 rows x 51 columns]
 ```
 
 And to reduce `facebook_DAU` to only the total DAU values over the projection timeline, the `DAU_total` function can be used again:

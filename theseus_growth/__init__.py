@@ -19,11 +19,11 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 import numbers
-import cohort_projections
-import aged_DAU_projections
-import graphs
-import retention_profile
-import theseus_io
+from theseus_growth import cohort_projections
+from theseus_growth import aged_DAU_projections
+from theseus_growth import graphs
+from theseus_growth import retention_profile
+from theseus_growth import theseus_io
 
 class theseus():
     

@@ -24,6 +24,7 @@ from theseus_growth import aged_DAU_projections
 from theseus_growth import graphs
 from theseus_growth import retention_profile
 from theseus_growth import theseus_io
+from theseus_growth import curve_functions
 
 class theseus():
     
@@ -56,7 +57,7 @@ class theseus():
         if form == 'best_fit' or form == '' or form == None:
             profile[ 'retention_profile' ] = 'best_fit'
         else:
-            if form in self.processes or form == 'interpolate':
+            if form in curve_functions.processes or form == 'interpolate':
                 profile[ 'retention_profile' ] = form
             else:
                 raise Exception( 'Invalid retention curve function provided' )

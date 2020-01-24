@@ -4,7 +4,7 @@
 # # # # # #
 
 import pandas as pd
-import cohort_projections
+from theseus_growth import cohort_projections
 
 
 def get_DNU(forward_DAU):

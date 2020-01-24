@@ -24,6 +24,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 '''
 
+import numbers
 from theseus_growth import cohort_projections
 from theseus_growth import aged_DAU_projections
 from theseus_growth import graphs

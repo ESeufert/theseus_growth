@@ -235,7 +235,7 @@ def project_cohorted_DAU(profile, periods, cohorts, DAU_target=None,
         forward_DAU = build_forward_DAU(profile, forward_DAU, cohort, periods, start_date)
 
     # if DAU_target is set, it means we are trying to build to some target
-    if DAU_target is None:
+    if DAU_target is not None:
         forward_DAU = project_targeted_DAU(
             profile, forward_DAU, periods, cohorts, DAU_target, DAU_target_timeline, start_date
         )

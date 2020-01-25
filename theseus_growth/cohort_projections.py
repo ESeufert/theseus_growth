@@ -128,17 +128,17 @@ def combine_DAU(DAU_totals, labels=None):
     if len(DAU_totals) < 2:
         raise Exception('Must provide at least two sets of DAU projections to combine.')
 
-    if labels is None and (len(DAU_totals) != len(labels)):
+    if labels is not None and (len(DAU_totals) != len(labels)):
         raise Exception('Number of labels doesnt match number of DAU projections provided.')
 
     combined_DAU = DAU_totals[0]
     combined_DAU = combined_DAU.reset_index()
-    if labels is None:
+    if labels is not None:
         combined_DAU['profile'] = labels[0]
 
     i = 1
     for DAU_total in DAU_totals[1:]:
-        if labels is None:
+        if labels is not None:
             DAU_total['profile'] = labels[i]
             DAU_total.reset_index().set_index(['profile'])
         common = list(set(combined_DAU.columns.tolist()) & set(DAU_total.columns.tolist()))
@@ -150,12 +150,13 @@ def combine_DAU(DAU_totals, labels=None):
         [int(c) for c in combined_DAU.columns if c not in ['DAU', 'profile', 'cohort_date', 'age', 'Value']]
     )
     columns = [str(c) for c in columns]
-    if labels is None:
+    if labels is not None:
         columns += ['profile']
     # combined_DAU = combined_DAU.reindex(
     #    sorted(combined_DAU.columns, key=lambda x: float(combined_DAU.columns)), axis=1
     # )
     combined_DAU = combined_DAU[columns]
+
     combined_DAU.reset_index()
 
     return combined_DAU.set_index('profile')

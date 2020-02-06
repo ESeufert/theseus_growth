@@ -14,7 +14,8 @@ pandas = "^0.25.3"
 openpyxl = "^3.0.3"
 scipy = "^1.4.1"
 numpy = "^1.18.1"
-flake8 = "^3.7.9"
 
 [tool.poetry.dev-dependencies]
+pytest = "^5.3.5"
+flake8 = "^3.7.9"
 

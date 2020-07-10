@@ -137,7 +137,7 @@ def get_retention_projection_best_fit(profile, profile_max=None):
     if 'params' not in profile or not profile['params']:
         profile['params'] = process_retention_profile_projection(profile)
 
-    for process_value in curve_functions.processes:
+    for process_value in curve_functions.processes and process_value in profile['params']:
         if process_value not in profile['params']:
             pass
         this_func = process_value + '_func'

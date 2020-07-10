@@ -137,31 +137,30 @@ def get_retention_projection_best_fit(profile, profile_max=None):
     if 'params' not in profile or not profile['params']:
         profile['params'] = process_retention_profile_projection(profile)
 
-    for process_value in curve_functions.processes and process_value in profile['params']:
-        if process_value not in profile['params']:
-            pass
-        this_func = process_value + '_func'
-        this_params = profile['params'][process_value]
-        equations[process_value] = getattr(curve_functions, this_func)(x2, *this_params)
-        # calculate the summed squared error for this model based on the X values
-        # that exist for this retention profile
-        these_summed_squares = 0
+    for process_value in curve_functions.processes:
+        if process_value in profile['params']:
+            this_func = process_value + '_func'
+            this_params = profile['params'][process_value]
+            equations[process_value] = getattr(curve_functions, this_func)(x2, *this_params)
+            # calculate the summed squared error for this model based on the X values
+            # that exist for this retention profile
+            these_summed_squares = 0
 
-        for i, x_projection in enumerate(x2):
-            x_projection = int(x_projection)
-            # loop through x2 and get all the y values for that x
-            # since there can be multiple points per x value
-            # the indices in x_data are the same for those values in y_data
-            x_indices = [i for i, x in enumerate(x_data) if x == x_projection]
-            y_values = [y_data[index] for index in x_indices]
-            # get the projected value for this x value from equations
-            projected_value = equations[process_value][x_projection]
-            # sum up squared errors between all y values and the projected value
-            this_ss = sum([abs(projected_value - this_value)**2 for this_value in y_values])
-            # add the summed errors for the y values at this x value to the running total
-            these_summed_squares += this_ss
-        # assign the summed squares value to the errors for this process value
-        errors[process_value] = these_summed_squares
+            for i, x_projection in enumerate(x2):
+                x_projection = int(x_projection)
+                # loop through x2 and get all the y values for that x
+                # since there can be multiple points per x value
+                # the indices in x_data are the same for those values in y_data
+                x_indices = [i for i, x in enumerate(x_data) if x == x_projection]
+                y_values = [y_data[index] for index in x_indices]
+                # get the projected value for this x value from equations
+                projected_value = equations[process_value][x_projection]
+                # sum up squared errors between all y values and the projected value
+                this_ss = sum([abs(projected_value - this_value)**2 for this_value in y_values])
+                # add the summed errors for the y values at this x value to the running total
+                these_summed_squares += this_ss
+            # assign the summed squares value to the errors for this process value
+            errors[process_value] = these_summed_squares
 
     best_fit = str(min(errors, key=errors.get))
     profile['errors'] = errors

@@ -18,7 +18,7 @@ def log_func(x, a, b, c):
 def exp_func(x, a, b, c):
     warnings.filterwarnings('ignore')
     np.seterr(all='ignore')
-    return a * exp(-b * x) + c
+    return a * np.exp(-b * x) + c
 
 
 def poly_func(x, a, b, c, d):
@@ -38,7 +38,7 @@ def quad_func(x, a, b, c):
 
 def weibull_func(x, k, l):
     np.seterr(all='ignore')
-    return (k/l) * ((x/l) ** (k - 1)) * exp(- (x/l) ** k)
+    return (k/l) * ((x/l) ** (k - 1)) * np.exp(- (x/l) ** k)
 
 
 def power_func(x, a, b):

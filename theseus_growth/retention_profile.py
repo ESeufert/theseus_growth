@@ -7,7 +7,7 @@ from scipy.optimize import curve_fit
 from itertools import chain
 
 ### Import Curve Functions from the package ###
-import curve_functions
+from theseus_growth import curve_functions
 
 
 def generate_retention_profile(profile, profile_max):

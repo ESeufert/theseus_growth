@@ -7,7 +7,7 @@ from scipy.optimize import curve_fit
 from itertools import chain
 
 ### Import Curve Functions from the package ###
-from theseus_growth import curve_functions
+from . import curve_functions
 
 
 def generate_retention_profile(profile, profile_max):
@@ -96,12 +96,11 @@ def generate_curve_coefficients(profile, process_value):
         y_data = profile['y']
         this_func = process_value + '_func'
         try:
-            popt, pcov = curve_fit(getattr(curve_functions, this_func), x_data, y_data)
+            popt, pcov = curve_fit(getattr(curve_functions, this_func), x_data, y_data, maxfev=10000)
         except Exception:
             # raise Exception('Unable to process retention curve with ' + process_value + ' function')
             print('Notice: Unable to process retention curve with ' + process_value + ' function')
             return None
-        popt, pcov = curve_fit(getattr(curve_functions, this_func), x_data, y_data)
     elif process_value == 'interpolate':
         curve_functions.interpolate(profile)
         return None

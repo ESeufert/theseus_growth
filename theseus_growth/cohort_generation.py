@@ -159,33 +159,3 @@ class Cohort():
         df = pd.DataFrame(cohorts_normalized).replace(0, np.nan)
 
         return np.array(df.mean(axis=1).to_list())
-
-if __name__ == '__main__':
-    # data = pd.read_csv('/home/mike/projects/analytics/account_churn.csv')
-
-    data = [
-        {'date': '2019-01-01', 'name': "Johnny"},
-        {'date': '2019-01-01', 'name': "Johnny"},
-        {'date': '2019-02-01', 'name': "Mike"},
-        {'date': '2019-03-01', 'name': "Mike"},
-        {'date': '2019-02-01', 'name': "Mike"},
-        {'date': '2019-01-01', 'name': "Johnny"},
-        {'date': '2019-01-01', 'name': "Johnny"},
-        {'date': '2019-03-01', 'name': "Kenny"},
-        {'date': '2019-05-01', 'name': "Kenny"},
-        {'date': '2019-02-01', 'name': "Kenny"},
-        {'date': '2019-06-01', 'name': "BoB"},
-        {'date': '2019-03-01', 'name': "BoB"},
-        {'date': '2019-04-01', 'name': "BoB"},
-        {'date': '2019-05-01', 'name': "BoB"},
-    ]
-
-    # c = create_cohort(data, 'Trial_End_Date__c', 'Cancellation_Date__c')
-    # c = Cohort(data, 'date', 'name')
-    d = list_to_cohorts(data, 'date', 'name')
-    print(d)
-    exit()
-    # print(c._df)
-    # print(c.average)
-    # print(c._cohort)
-    print(c.range)

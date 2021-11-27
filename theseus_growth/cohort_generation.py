@@ -48,15 +48,19 @@ class Cohort():
         Creates a cohort based on start and end date
 
         Each entry is considered a unique client and we assume they were active throughout the period.
+        The dataframe given should already have cohort columns added: 'cohort' and 'cohort_length'
         """
         cohorts = {}
         max_length = int(df['cohort_length'].max())
         for index, row in df.iterrows():
             if not row['cohort']: continue
+            
             if row['cohort'] not in cohorts:
+                #If this is the first time we've seen this cohort, initialize it with 0s    
                 cohorts[row['cohort']] = [0 for i in range(max_length)]
             cohort = cohorts[row['cohort']]
             
+            #Incremement cohort counter for each interval that this user was active.
             for i in range(row['cohort_length']):
                 cohort[i] += 1
         
@@ -66,7 +70,7 @@ class Cohort():
         """
         Creates a cohort based on usage activity.
 
-        Activity is like a log entry. There can be many per unique client.
+        Activity is like a log entry. There can be many per unique client/user.
         """
         users = {}
         cohorts = {}
@@ -74,19 +78,27 @@ class Cohort():
         for index, row in df.iterrows():
             user_id = row[id_column]
             date_as_cohort = self.date_to_cohort(row[date_column])
+            
+            #Track user
             if user_id not in users:
                 users[user_id] = {**row, 'cohort': date_as_cohort}
             user = users[user_id]
 
+            #Skip if the user already had activity in this period. Only count a user once per interval.
             if user.get('cohort_end') and user['cohort_end'] == date_as_cohort:
                 continue
+            #Track the latest activity date for this user.
             user['cohort_end'] = date_as_cohort
 
             length = self.cohort_length(user, interval) + 1
+            #If this is the first time we've seen this cohort, initialize it with 0s
             if user['cohort'] not in cohorts:
                 cohorts[user['cohort']] = [0 for i in range(length)]
+            
+            #If the new activity is beyond the length of the existing cohort data, extend the cohort. Ex: 201901 = [10,6,2,1] thats 4 intervals. If this is the 5th interval, extend so it can become [10,6,2,1,1]
             if len (cohorts[user['cohort']]) < length:
                 cohorts[user['cohort']].extend([0 for i in range(length-len(cohorts[user['cohort']]))])
+            #Increment cohort counter
             cohorts[user['cohort']][length-1] += 1
         
         return pd.DataFrame(users), dict(sorted(cohorts.items()))
@@ -102,6 +114,7 @@ class Cohort():
 
 
     def date_to_cohort(self, date, interval='month'):
+        #Cohorts are integers like 202101. This makes it easier to work with than a date object.
         if isinstance(date, str):
             date = pd.to_datetime(date)
         elif isinstance(date, datetime.date) or isinstance(date, datetime.datetime):
@@ -111,6 +124,7 @@ class Cohort():
         return int(date.strftime('%Y%m'))
 
     def cohort_to_date(self, cohort, interval='month'):
+        #Sometimes we need the date again. Turn a cohort of the form 202101 into a date object.
         if not cohort: return None
         try: date = datetime.datetime.strptime(str(cohort)[0:6], '%Y%m')
         except: return None

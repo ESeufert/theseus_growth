@@ -74,6 +74,7 @@ class Cohort():
         """
         users = {}
         cohorts = {}
+        max_length = 0
         df = df.sort_values(by=date_column)
         for index, row in df.iterrows():
             user_id = row[id_column]
@@ -91,6 +92,8 @@ class Cohort():
             user['cohort_end'] = date_as_cohort
 
             length = self.cohort_length(user, interval) + 1
+            if length > max_length: max_length = length
+
             #If this is the first time we've seen this cohort, initialize it with 0s
             if user['cohort'] not in cohorts:
                 cohorts[user['cohort']] = [0 for i in range(length)]
@@ -100,6 +103,11 @@ class Cohort():
                 cohorts[user['cohort']].extend([0 for i in range(length-len(cohorts[user['cohort']]))])
             #Increment cohort counter
             cohorts[user['cohort']][length-1] += 1
+        
+        #all cohorts need to have the same number of items, so extend them to the max length
+        for cohort, activity in cohorts.items():
+            if len(activity) < max_length:
+                activity.extend([0 for i in range(max_length-len(activity))])
         
         return pd.DataFrame(users), dict(sorted(cohorts.items()))
 

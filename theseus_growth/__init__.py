@@ -95,7 +95,7 @@ class theseus():
         return True
 
     def create_cohort(self, data, date_column, churn_date_column=None, identifier_column=None, interval=None):
-        return Cohort(data, date_column=date_column, churn_date_column=churn_date_column, interval=interval)
+        return Cohort(data, date_column=date_column, churn_date_column=churn_date_column, identifier_column=identifier_column, interval=interval)
 
     def plot_retention(self, profile, show_average_values=True):
         graphs.plot_retention(profile, show_average_values)

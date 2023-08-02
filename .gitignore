@@ -1,1 +1,5 @@
 theseus_growth.egg-info/
+.flake8
+.gitignore
+poetry.lock
+pyproject.toml

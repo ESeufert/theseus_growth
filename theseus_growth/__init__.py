@@ -25,13 +25,14 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 import numbers
+import pandas as pd
 from theseus_growth import cohort_projections
 from theseus_growth import aged_DAU_projections
 from theseus_growth import graphs
 from theseus_growth import retention_profile
 from theseus_growth import theseus_io
 from theseus_growth import curve_functions
-
+from theseus_growth.cohort_generation import Cohort
 
 class theseus():
 
@@ -48,7 +49,11 @@ class theseus():
 
         return None
 
-    def create_profile(self, days, retention_values, form='best_fit', profile_max=None):
+    def create_profile(self, days, retention_values=None, form='best_fit', profile_max=None):
+        
+        if isinstance(days, Cohort):
+            cohort = days
+            days, retention_values = cohort.range, cohort.average_percent
 
         if self.test_retention_profile(days, retention_values):
             profile = {'x': days, 'y': retention_values}
@@ -88,6 +93,9 @@ class theseus():
             raise Exception('Insufficient retention data provided!')
 
         return True
+
+    def create_cohort(self, data, date_column, churn_date_column=None, identifier_column=None, interval=None):
+        return Cohort(data, date_column=date_column, churn_date_column=churn_date_column, identifier_column=identifier_column, interval=interval)
 
     def plot_retention(self, profile, show_average_values=True):
         graphs.plot_retention(profile, show_average_values)

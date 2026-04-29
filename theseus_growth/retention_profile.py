@@ -95,7 +95,7 @@ def project_retention(profile, profile_max=None, start=None, stop=None):
 #   - Increased maxfev from default (200) to 10000 to allow more iterations for fitting.
 
 initial_guesses = {
-    'weibull' : [0,5,10,100]
+    'weibull' : [0.5, 10, 100]
 }
 
 def generate_curve_coefficients(profile, process_value):
@@ -110,7 +110,6 @@ def generate_curve_coefficients(profile, process_value):
             # raise Exception('Unable to process retention curve with ' + process_value + ' function')
             print('Notice: Unable to process retention curve with ' + process_value + ' function')
             return None
-        popt, pcov = curve_fit(getattr(curve_functions, this_func), x_data, y_data, p0 = p0, maxfev=10000)
     elif process_value == 'interpolate':
         curve_functions.interpolate(profile)
         return None

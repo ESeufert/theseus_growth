@@ -36,10 +36,12 @@ def quad_func(x, a, b, c):
     return a * x**2 + b * x + c
 
 
-def weibull_func(x, k, l):
-    np.seterr(all='ignore')
-    return (k/l) * ((x/l) ** (k - 1)) * np.exp(- (x/l) ** k)
+def weibull_func(x, k, l, a):
+     np.seterr(all='ignore')
 
+     #return (k/l) * ((x/l) ** (k - 1)) * np.exp(- (x/l) ** k)
+     return a * np.exp(- np.power(x / l, k))
+# Note: When fitting retention with Weibull, the cumulative distribution function (CDF) should be used.
 
 def power_func(x, a, b):
     np.seterr(all='ignore')

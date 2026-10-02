@@ -1,0 +1,7 @@
+assumption,value
+starting_cash,400000
+minimum_cash,300000
+target_cash,1000000
+daily_non_marketing_cash_flow,-350
+planning_weeks,26
+forecast_days,366

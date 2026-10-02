@@ -1,0 +1,12 @@
+channel,curve_id,curve_role,cac,retention_decay_days,revenue_per_active_user_day,payment_cost_per_active_user_day
+paid_search,sub_paid_search,established,58,265,0.62,0.019
+affiliate,sub_affiliate,established,48,225,0.58,0.018
+podcast,sub_podcast_prior,prior,62,240,0.59,0.019
+display,sub_display_prior,prior,46,205,0.56,0.018
+ctv,sub_ctv_prior,prior,88,235,0.59,0.019
+podcast,sub_podcast_actual,actual,58,345,0.66,0.02
+display,sub_display_actual,actual,52,82,0.48,0.017
+ctv,sub_ctv_actual,actual,105,175,0.53,0.018
+paid_search,sub_paid_search_halo,halo,58,318,0.68,0.019
+affiliate,sub_affiliate_halo,halo,48,270,0.64,0.018
+podcast,sub_podcast_halo,halo,58,414,0.72,0.02

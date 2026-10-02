@@ -1,0 +1,6 @@
+channel,decision,prior_curve_id,actual_curve_id,max_weekly_spend
+paid_search,maintain,sub_paid_search,sub_paid_search,22000
+affiliate,maintain,sub_affiliate,sub_affiliate,15000
+podcast,scale_winner,sub_podcast_prior,sub_podcast_actual,50000
+display,stop_loser,sub_display_prior,sub_display_actual,0
+ctv,measure_incrementality,sub_ctv_prior,sub_ctv_actual,18000

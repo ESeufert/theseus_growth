@@ -495,73 +495,104 @@ def _overlay_observations(
     if observations.empty:
         return _sort_contributions(projections.copy(deep=True))
     keys = ["cohort_id", "period", "component"]
-    projection_index = projections.set_index(keys, drop=False)
     cohort_index = cohorts.set_index("cohort_id", drop=False)
-    rows: list[dict[str, Any]] = []
-    for _, observation in observations.iterrows():
-        cohort_id = observation["cohort_id"]
-        if cohort_id not in cohort_index.index:
-            raise SchemaError(f"Observation references unknown cohort {cohort_id!r}.")
-        cohort = cohort_index.loc[cohort_id]
-        if observation["period"] < cohort["acquisition_period"]:
-            raise SchemaError(
-                f"Observation for cohort {cohort_id!r} cannot precede its acquisition period."
-            )
-        key = (cohort_id, observation["period"], observation["component"])
-        projected = projection_index.loc[key] if key in projection_index.index else None
-        if isinstance(projected, pd.DataFrame):
-            projected = projected.iloc[0]
-        category = observation.get("category", pd.NA)
-        if pd.isna(category):
-            if projected is None:
-                raise SchemaError(
-                    "An observation without a matching projection must provide category: "
-                    f"{key!r}."
-                )
-            category = projected["category"]
-        amount = float(observation["amount"])
-        if category == "cost" and amount < 0:
-            raise SchemaError("Observed cost amounts must be non-negative.")
-        population = float(cohort["population"])
-        selected_curve = select_curve(curves, cohort)
-        version = (
-            projected["curve_version"]
-            if projected is not None
-            else selected_curve["curve_version"].iloc[0]
+    unknown = observations.loc[~observations["cohort_id"].isin(cohort_index.index)]
+    if not unknown.empty:
+        raise SchemaError(
+            f"Observation references unknown cohort {unknown.iloc[0]['cohort_id']!r}."
         )
-        row = {
-            "cohort_id": cohort_id,
-            "acquisition_period": cohort["acquisition_period"],
-            "period": observation["period"],
-            "age": axis.age(cohort["acquisition_period"], observation["period"]),
-            "component": observation["component"],
-            "category": category,
-            "source_value": (
-                projected["source_value"]
-                if projected is not None
-                else amount / population if population else np.nan
-            ),
-            "value_per_user": amount / population if population else np.nan,
-            "value_basis": (
-                projected["value_basis"] if projected is not None else "per_original_user"
-            ),
-            "driver_component": (
-                projected["driver_component"] if projected is not None else pd.NA
-            ),
-            "driver_curve_version": (
-                projected["driver_curve_version"] if projected is not None else pd.NA
-            ),
-            "amount": amount,
-            "pnl_amount": pnl_amount(str(category), amount),
-            "basis": "observed",
-            "curve_id": cohort["curve_id"],
-            "curve_version": version,
-        }
-        for column in cohorts.columns:
-            if column not in row and column not in {"population"}:
-                row[column] = cohort[column]
-        rows.append(row)
-    observed = pd.DataFrame(rows)
+
+    observed = observations[keys + ["amount", "category"]].copy(deep=True)
+    observed["acquisition_period"] = observed["cohort_id"].map(
+        cohort_index["acquisition_period"]
+    )
+    observed["population"] = observed["cohort_id"].map(cohort_index["population"])
+    observed["curve_id"] = observed["cohort_id"].map(cohort_index["curve_id"])
+    before_acquisition = observed["period"] < observed["acquisition_period"]
+    if before_acquisition.any():
+        cohort_id = observed.loc[before_acquisition, "cohort_id"].iloc[0]
+        raise SchemaError(
+            f"Observation for cohort {cohort_id!r} cannot precede its acquisition period."
+        )
+
+    projection_columns = [
+        "category",
+        "source_value",
+        "value_basis",
+        "driver_component",
+        "driver_curve_version",
+        "curve_version",
+    ]
+    projected = projections[keys + projection_columns].rename(
+        columns={column: f"_projected_{column}" for column in projection_columns}
+    )
+    observed = observed.merge(projected, on=keys, how="left", validate="one_to_one")
+    matched = observed["_projected_category"].notna()
+    missing_category = observed["category"].isna() & ~matched
+    if missing_category.any():
+        row = observed.loc[missing_category].iloc[0]
+        key = (row["cohort_id"], row["period"], row["component"])
+        raise SchemaError(
+            "An observation without a matching projection must provide category: "
+            f"{key!r}."
+        )
+    observed["category"] = observed["category"].fillna(observed["_projected_category"])
+    if (observed["category"].eq("cost") & observed["amount"].lt(0)).any():
+        raise SchemaError("Observed cost amounts must be non-negative.")
+
+    observed["age"] = [
+        axis.age(acquisition_period, period)
+        for acquisition_period, period in zip(
+            observed["acquisition_period"], observed["period"]
+        )
+    ]
+    per_user = np.divide(
+        observed["amount"].to_numpy(dtype=float),
+        observed["population"].to_numpy(dtype=float),
+        out=np.full(len(observed), np.nan),
+        where=observed["population"].to_numpy(dtype=float) != 0,
+    )
+    observed["source_value"] = observed["_projected_source_value"].where(
+        matched, per_user
+    )
+    observed["value_per_user"] = per_user
+    observed["value_basis"] = observed["_projected_value_basis"].where(
+        matched, "per_original_user"
+    )
+    observed["driver_component"] = observed["_projected_driver_component"].where(
+        matched, pd.NA
+    )
+    observed["driver_curve_version"] = observed[
+        "_projected_driver_curve_version"
+    ].where(matched, pd.NA)
+    observed["curve_version"] = observed["_projected_curve_version"]
+    if (~matched).any():
+        default_versions: dict[Any, Any] = {}
+        for cohort_id in observed.loc[~matched, "cohort_id"].unique():
+            cohort = cohort_index.loc[cohort_id]
+            default_versions[cohort_id] = select_curve(curves, cohort)[
+                "curve_version"
+            ].iloc[0]
+        observed.loc[~matched, "curve_version"] = observed.loc[
+            ~matched, "cohort_id"
+        ].map(default_versions)
+    observed["pnl_amount"] = np.select(
+        [observed["category"].eq("cost"), observed["category"].isin(["revenue", "contribution"])],
+        [-observed["amount"].abs(), observed["amount"]],
+        default=0.0,
+    )
+    observed["basis"] = "observed"
+    for column in cohorts.columns:
+        if column not in observed and column != "population":
+            observed[column] = observed["cohort_id"].map(cohort_index[column])
+    observed = observed[
+        CONTRIBUTION_COLUMNS
+        + [
+            column
+            for column in cohorts.columns
+            if column not in CONTRIBUTION_COLUMNS and column != "population"
+        ]
+    ]
     observed_keys = pd.MultiIndex.from_frame(observed[keys])
     projected_keys = pd.MultiIndex.from_frame(projections[keys])
     unresolved = projections.loc[~projected_keys.isin(observed_keys)]

@@ -1,0 +1,6 @@
+channel,curve_id,max_weekly_spend,min_active_spend,saturation_subscribers
+paid_search,sub_paid_search,80000,5000,1700
+affiliate,sub_affiliate,50000,5000,1100
+podcast,sub_podcast_actual,90000,5000,1500
+display,sub_display_actual,50000,5000,1200
+ctv,sub_ctv_actual,60000,5000,900

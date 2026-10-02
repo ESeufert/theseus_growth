@@ -29,6 +29,23 @@ python -m jupyter lab Theseus_Walkthrough.ipynb
 
 Choose the same environment's Python kernel, then **Restart Kernel and Run All Cells**. No credentials or external data are needed. Demo exports go to the Git-ignored `examples/output/notebook/` directory relative to the notebook's working directory. The notebook includes executable checks for incremental/full-rebuild equivalence, observation preservation, partial-broadcast isolation, and adapter round-trips.
 
+## CFO scenario-planning labs
+
+Two executed notebooks extend the primer into capital-allocation decisions using deterministic synthetic CSV datasets:
+
+- [`examples/notebooks/Game_CFO_Cash_Flow_Optimization.ipynb`](examples/notebooks/Game_CFO_Cash_Flow_Optimization.ipynb) optimizes acquisition for active-player growth subject to a daily cash floor, then solves for the minimum spend required to grow bank cash from $400k to $1MM.
+- [`examples/notebooks/Subscription_CFO_Channel_Experiments.ipynb`](examples/notebooks/Subscription_CFO_Channel_Experiments.ipynb) re-underwrites a winning podcast test, a failed display test, and a CTV test whose direct ROAS is poor but whose modeled retention and monetization halo can create portfolio value.
+- [`examples/notebooks/Subscription_CMO_Campaign_Optimization.ipynb`](examples/notebooks/Subscription_CMO_Campaign_Optimization.ipynb) applies Waterfall and Distributed budgeting to cohort-derived campaign response curves, contrasting a primary marginal-ROAS constraint with a primary fixed-budget constraint.
+
+Install the planning dependencies and open either notebook from the repository root:
+
+```bash
+python -m pip install -e ".[planning]"
+python -m jupyter lab examples/notebooks/
+```
+
+The source data live under `examples/data/game/` and `examples/data/subscription/`. Regenerate the deterministic CSV files with `python examples/generate_cfo_datasets.py`. The examples are decision-model demonstrations, not measured channel benchmarks or causal evidence.
+
 ## V1 model
 
 V1 has three principal operations:

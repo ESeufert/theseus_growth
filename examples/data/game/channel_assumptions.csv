@@ -1,0 +1,4 @@
+channel,curve_id,cpi,max_weekly_spend,retention_floor,retention_decay_days,iap_per_active_user_day,ads_per_active_user_day,variable_cost_per_active_user_day
+paid_social,game_paid_social,2.4,45000,0.009,11,0.205,0.055,0.012
+ad_network,game_ad_network,1.45,30000,0.006,8,0.125,0.09,0.011
+search,game_search,2.85,25000,0.015,17,0.255,0.04,0.013

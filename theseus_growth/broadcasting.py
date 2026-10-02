@@ -111,34 +111,41 @@ def broadcast(
     result["age"] = output["age"].astype(int)
     result["component"] = output["component"].values
     result["category"] = output["category"].values
-    effective_values: list[float] = []
-    driver_versions: list[Any] = []
-    for _, curve_row in output.iterrows():
-        source_value = float(curve_row["value"])
-        if curve_row["value_basis"] == "per_active_user":
-            driver = normalized_curve.loc[
-                normalized_curve["age"].eq(curve_row["age"])
-                & normalized_curve["component"].eq(curve_row["driver_component"])
-                & normalized_curve["category"].eq("activity")
-            ]
-            if len(driver) != 1:
-                raise BroadcastError(
-                    f"Curve {cohort_row['curve_id']!r} needs exactly one activity driver "
-                    f"{curve_row['driver_component']!r} at age {curve_row['age']}."
-                )
-            driver_value = float(driver.iloc[0]["value"])
-            if driver_value < 0 or driver_value > 1:
-                raise BroadcastError("per_active_user driver values must be between 0 and 1.")
-            effective_values.append(source_value * driver_value)
-            driver_versions.append(driver.iloc[0]["curve_version"])
-        else:
-            effective_values.append(source_value)
-            driver_versions.append(pd.NA)
+    source_values = output["value"].astype(float)
+    effective_values = source_values.copy()
+    driver_versions = pd.Series(pd.NA, index=output.index, dtype=object)
+    active_basis = output["value_basis"].eq("per_active_user")
+    if active_basis.any():
+        activity = normalized_curve.loc[
+            normalized_curve["category"].eq("activity"),
+            ["age", "component", "value", "curve_version"],
+        ].set_index(["age", "component"])
+        active_rows = output.loc[active_basis]
+        driver_keys = pd.MultiIndex.from_arrays(
+            [active_rows["age"], active_rows["driver_component"]],
+            names=["age", "component"],
+        )
+        driver_positions = activity.index.get_indexer(driver_keys)
+        if (driver_positions < 0).any():
+            missing_position = int((driver_positions < 0).nonzero()[0][0])
+            missing_row = active_rows.iloc[missing_position]
+            raise BroadcastError(
+                f"Curve {cohort_row['curve_id']!r} needs exactly one activity driver "
+                f"{missing_row['driver_component']!r} at age {missing_row['age']}."
+            )
+        drivers = activity.iloc[driver_positions]
+        driver_values = drivers["value"].astype(float).to_numpy()
+        if ((driver_values < 0) | (driver_values > 1)).any():
+            raise BroadcastError("per_active_user driver values must be between 0 and 1.")
+        effective_values.loc[active_basis] = (
+            source_values.loc[active_basis].to_numpy() * driver_values
+        )
+        driver_versions.loc[active_basis] = drivers["curve_version"].to_numpy()
     result["source_value"] = output["value"].astype(float).values
-    result["value_per_user"] = effective_values
+    result["value_per_user"] = effective_values.to_numpy()
     result["value_basis"] = output["value_basis"].values
     result["driver_component"] = output["driver_component"].values
-    result["driver_curve_version"] = driver_versions
+    result["driver_curve_version"] = driver_versions.to_numpy()
     result["amount"] = population * result["value_per_user"]
     result["pnl_amount"] = [
         _pnl_amount(category, amount)

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "theseus-growth"
+version = "1.0.0"
+description = "Opinionated cohort financial analytics built on pandas DataFrames"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Eric Benjamin Seufert"}]
+dependencies = [
+    "numpy>=1.23",
+    "pandas>=1.5",
+]
+
+[project.optional-dependencies]
+excel = ["openpyxl>=3.1"]
+viz = ["matplotlib>=3.6"]
+legacy = ["scipy>=1.9", "matplotlib>=3.6"]
+test = ["openpyxl>=3.1", "pytest>=7", "matplotlib>=3.6"]
+
+[tool.setuptools.packages.find]
+include = ["theseus_growth*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

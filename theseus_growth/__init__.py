@@ -25,12 +25,33 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 import numbers
-from theseus_growth import cohort_projections
-from theseus_growth import aged_DAU_projections
-from theseus_growth import graphs
-from theseus_growth import retention_profile
-from theseus_growth import theseus_io
-from theseus_growth import curve_functions
+
+from . import io, viz
+from .broadcasting import broadcast, cumulative_to_incremental
+from .engine import ForecastResult, advance, forecast
+from .exceptions import BroadcastError, SchemaError, TheseusError, TimeAxisError
+from .frames import SourceFrames
+from .time import CalendarDayAxis, IntegerDayAxis
+
+__version__ = "1.0.0"
+
+__all__ = [
+    "BroadcastError",
+    "CalendarDayAxis",
+    "ForecastResult",
+    "IntegerDayAxis",
+    "SchemaError",
+    "SourceFrames",
+    "TheseusError",
+    "TimeAxisError",
+    "advance",
+    "broadcast",
+    "cumulative_to_incremental",
+    "forecast",
+    "io",
+    "viz",
+    "theseus",
+]
 
 
 class theseus():
@@ -49,6 +70,8 @@ class theseus():
         return None
 
     def create_profile(self, days, retention_values, form='best_fit', profile_max=None):
+
+        from theseus_growth import curve_functions, retention_profile
 
         if self.test_retention_profile(days, retention_values):
             profile = {'x': days, 'y': retention_values}
@@ -90,36 +113,56 @@ class theseus():
         return True
 
     def plot_retention(self, profile, show_average_values=True):
+        from theseus_growth import graphs
+
         graphs.plot_retention(profile, show_average_values)
 
     def project_cohorted_DAU(self, profile, periods, cohorts, DAU_target=None, DAU_target_timeline=None, start_date=1):
+        from theseus_growth import cohort_projections
+
         return cohort_projections.project_cohorted_DAU(
             profile, periods, cohorts, DAU_target, DAU_target_timeline, start_date
         )
 
     def DAU_total(self, forward_DAU):
+        from theseus_growth import cohort_projections
+
         return cohort_projections.DAU_total(forward_DAU)
 
     def plot_forward_DAU_stacked(self, forward_DAU, forward_DAU_labels, forward_DAU_dates,
                                  show_values=False, show_totals_values=False):
+        from theseus_growth import graphs
+
         graphs.plot_forward_DAU_stacked(
             forward_DAU, forward_DAU_labels, forward_DAU_dates, show_values, show_totals_values
         )
 
     def combine_DAU(self, DAU_totals, labels=None):
+        from theseus_growth import cohort_projections
+
         return cohort_projections.combine_DAU(DAU_totals, labels)
 
     def project_aged_DAU(self, profile, periods, cohorts, ages, start_date=1):
+        from theseus_growth import aged_DAU_projections
+
         return aged_DAU_projections.project_aged_DAU(profile, periods, cohorts, ages, start_date)
 
     def project_exact_aged_DAU(self, profile, periods, cohorts, ages, start_date=1):
+        from theseus_growth import aged_DAU_projections
+
         return aged_DAU_projections.project_exact_aged_DAU(profile, periods, cohorts, ages, start_date)
 
     def get_DNU(self, forward_DAU):
+        from theseus_growth import aged_DAU_projections
+
         return aged_DAU_projections.get_DNU(forward_DAU)
 
     def to_excel(self, df, file_name=None, sheet_name=None):
+        from theseus_growth import theseus_io
+
         theseus_io.to_excel(df, file_name, sheet_name)
 
     def to_json(self, df, file_name=None):
+        from theseus_growth import theseus_io
+
         theseus_io.to_json(df, file_name)
